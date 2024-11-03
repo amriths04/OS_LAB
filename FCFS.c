@@ -14,16 +14,36 @@ struct Process {
 // Function to calculate FCFS scheduling
 void FCFS(struct Process p[], int n) {
     int totalWaitingTime = 0, totalTurnaroundTime = 0;
+    int currentTime = 0;
 
-    // Calculate waiting time for each process
-    p[0].waitingTime = 0; // First process has no waiting time
-    for (int i = 1; i < n; i++) {
-        p[i].waitingTime = p[i - 1].waitingTime + p[i - 1].burstTime;
+    // Sort processes by arrival time (if not already sorted)
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (p[i].arrivalTime > p[j].arrivalTime) {
+                struct Process temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
     }
 
-    // Calculate turnaround time for each process
+    // Calculate waiting time and turnaround time for each process
     for (int i = 0; i < n; i++) {
+        // If the process arrives after the current time, update current time to its arrival time
+        if (currentTime < p[i].arrivalTime) {
+            currentTime = p[i].arrivalTime;
+        }
+
+        // Waiting time = current time - arrival time
+        p[i].waitingTime = currentTime - p[i].arrivalTime;
+
+        // Turnaround time = waiting time + burst time
         p[i].turnaroundTime = p[i].waitingTime + p[i].burstTime;
+
+        // Update current time after processing this job
+        currentTime += p[i].burstTime;
+
+        // Accumulate total waiting time and turnaround time for averages
         totalWaitingTime += p[i].waitingTime;
         totalTurnaroundTime += p[i].turnaroundTime;
     }
